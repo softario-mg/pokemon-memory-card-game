@@ -29,9 +29,9 @@ const TYPE_COLORS = {
 };
 
 const DIFFICULTY_SETTINGS = {
-  easy: { pairs: 6, time: 120 },
-  medium: { pairs: 8, time: 180 },
-  hard: { pairs: 12, time: 300 },
+  easy: { pairs: 6, time: 120, previewTime: 10 },
+  medium: { pairs: 8, time: 180, previewTime: 8 },
+  hard: { pairs: 12, time: 300, previewTime: 5 },
 };
 
 export default function MemoryGame() {
@@ -42,6 +42,8 @@ export default function MemoryGame() {
   const [bestScore, setBestScore] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
+  const [previewTimeLeft, setPreviewTimeLeft] = useState(0);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [selectedPokemon, setSelectedPokemon] = useState<CardType | null>(null);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -85,7 +87,7 @@ export default function MemoryGame() {
           stats: Object.fromEntries(
             data.stats.map(s => [s.stat.name, s.base_stat])
           ),
-          isFlipped: false,
+          isFlipped: true, // Start flipped for preview
           isMatched: false
         };
         
@@ -99,7 +101,7 @@ export default function MemoryGame() {
           stats: Object.fromEntries(
             data.stats.map(s => [s.stat.name, s.base_stat])
           ),
-          isFlipped: false,
+          isFlipped: true, // Start flipped for preview
           isMatched: false
         };
         
@@ -109,6 +111,8 @@ export default function MemoryGame() {
       // Shuffle the array
       const shuffledCards = pokemonArray.sort(() => Math.random() - 0.5);
       setCards(shuffledCards);
+      setIsPreview(true);
+      setPreviewTimeLeft(DIFFICULTY_SETTINGS[difficulty].previewTime);
     } catch (error) {
       console.error('Error fetching Pokémon:', error);
     } finally {
@@ -116,8 +120,30 @@ export default function MemoryGame() {
     }
   };
 
+  // Preview countdown effect
+  useEffect(() => {
+    if (!isPreview || previewTimeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setPreviewTimeLeft((prev) => {
+        if (prev <= 1) {
+          // When preview ends, flip all cards face down
+          setCards((prevCards) =>
+            prevCards.map((card) => ({ ...card, isFlipped: false }))
+          );
+          setIsPreview(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isPreview, previewTimeLeft]);
+
   const handleCardClick = (clickedCard: CardType) => {
     if (
+      isPreview ||
       flippedCards.length === 2 ||
       clickedCard.isFlipped ||
       clickedCard.isMatched ||
@@ -224,13 +250,21 @@ export default function MemoryGame() {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Pokémon Memory Game</h1>
         <div className="flex justify-center items-center gap-8 mb-4">
-          <div className="text-lg">Moves: {moves}</div>
-          <Timer
-            initialTime={DIFFICULTY_SETTINGS[difficulty].time}
-            isRunning={!isGameOver}
-            onTimeUp={handleTimeUp}
-          />
-          <div className="text-lg">Score: {score}</div>
+          {isPreview ? (
+            <div className="text-xl font-bold text-blue-500">
+              Memorize the cards! {previewTimeLeft}s
+            </div>
+          ) : (
+            <>
+              <div className="text-lg">Moves: {moves}</div>
+              <Timer
+                initialTime={DIFFICULTY_SETTINGS[difficulty].time}
+                isRunning={!isGameOver}
+                onTimeUp={handleTimeUp}
+              />
+              <div className="text-lg">Score: {score}</div>
+            </>
+          )}
         </div>
         <button
           onClick={handleRestart}
@@ -240,7 +274,7 @@ export default function MemoryGame() {
         </button>
       </div>
       
-      {isGameOver && (
+      {isGameOver && !isPreview && (
         <div className="text-center mb-8 p-4 bg-green-100 dark:bg-green-900 rounded-lg">
           <h2 className="text-2xl font-bold text-green-700 dark:text-green-300">
             {cards.every(card => card.isMatched) ? 'Congratulations! You won!' : 'Time\'s up!'}

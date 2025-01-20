@@ -29,24 +29,29 @@ export default function Card({ card, onClick, typeColors }: CardProps) {
         }`}
       >
         {/* Front of card (Pokéball) */}
-        <div className="absolute w-full h-full backface-hidden bg-white rounded-xl shadow-lg flex items-center justify-center p-4">
+        <div className="absolute w-full h-full backface-hidden bg-white dark:bg-gray-700 rounded-xl shadow-lg flex items-center justify-center p-4">
           <Image
             src={POKEBALL_SVG}
             alt="Pokéball"
             width={80}
             height={80}
             className="w-3/4 h-3/4 object-contain"
+            priority
           />
         </div>
 
         {/* Back of card (Pokémon) */}
-        <div className={`absolute w-full h-full backface-hidden ${cardBgColor} rounded-xl shadow-lg flex flex-col items-center justify-center p-4 rotate-y-180`}>
+        <div 
+          className={`absolute w-full h-full backface-hidden ${cardBgColor} rounded-xl shadow-lg flex flex-col items-center justify-center p-4 rotate-y-180`}
+          style={{ transform: 'rotateY(180deg)' }}
+        >
           <Image
             src={card.image}
             alt={card.name}
             width={80}
             height={80}
             className="w-3/4 h-3/4 object-contain"
+            priority
           />
           <p className="mt-2 text-sm font-semibold capitalize text-white">{card.name}</p>
           <div className="flex gap-2 mt-1">

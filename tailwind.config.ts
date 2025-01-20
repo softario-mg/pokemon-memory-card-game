@@ -9,12 +9,17 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
       rotate: {
         'y-180': 'rotateY(180deg)',
+      },
+      transformStyle: {
+        '3d': 'preserve-3d',
+      },
+      backfaceVisibility: {
+        'hidden': 'hidden',
+      },
+      perspective: {
+        '1000': '1000px',
       },
     },
   },
@@ -23,12 +28,23 @@ const config: Config = {
       addUtilities({
         '.backface-hidden': {
           'backface-visibility': 'hidden',
+          '-webkit-backface-visibility': 'hidden',
+          '-moz-backface-visibility': 'hidden',
         },
         '.perspective-1000': {
           'perspective': '1000px',
+          '-webkit-perspective': '1000px',
+          '-moz-perspective': '1000px',
         },
         '.transform-style-3d': {
           'transform-style': 'preserve-3d',
+          '-webkit-transform-style': 'preserve-3d',
+          '-moz-transform-style': 'preserve-3d',
+        },
+        '.rotate-y-180': {
+          'transform': 'rotateY(180deg)',
+          '-webkit-transform': 'rotateY(180deg)',
+          '-moz-transform': 'rotateY(180deg)',
         },
       });
     }),

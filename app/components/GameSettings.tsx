@@ -8,9 +8,9 @@ interface GameSettingsProps {
 
 export default function GameSettings({ difficulty, setDifficulty, onStart }: GameSettingsProps) {
   const difficultyOptions = {
-    easy: { pairs: 6, time: '2:00' },
-    medium: { pairs: 8, time: '3:00' },
-    hard: { pairs: 12, time: '5:00' },
+    easy: { pairs: 6, time: '2:00', preview: '10s' },
+    medium: { pairs: 8, time: '3:00', preview: '8s' },
+    hard: { pairs: 12, time: '5:00', preview: '5s' },
   };
 
   return (
@@ -20,7 +20,7 @@ export default function GameSettings({ difficulty, setDifficulty, onStart }: Gam
         <div>
           <label className="block text-sm font-medium mb-2">Difficulty</label>
           <div className="grid grid-cols-3 gap-2">
-            {Object.entries(difficultyOptions).map(([level, { pairs, time }]) => (
+            {Object.entries(difficultyOptions).map(([level, { pairs, time, preview }]) => (
               <button
                 key={level}
                 onClick={() => setDifficulty(level as 'easy' | 'medium' | 'hard')}
@@ -31,10 +31,17 @@ export default function GameSettings({ difficulty, setDifficulty, onStart }: Gam
                   }`}
               >
                 <div>{level.charAt(0).toUpperCase() + level.slice(1)}</div>
-                <div className="text-xs opacity-75">{pairs} pairs • {time}</div>
+                <div className="text-xs opacity-75">{pairs} pairs</div>
+                <div className="text-xs opacity-75">Game: {time}</div>
+                <div className="text-xs opacity-75">Preview: {preview}</div>
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
+          <p>You will have a preview time to memorize the cards before they are hidden.</p>
+          <p>Match all pairs before time runs out!</p>
         </div>
 
         <button
